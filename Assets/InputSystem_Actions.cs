@@ -589,6 +589,17 @@ public partial class @GameplayInput: IInputActionCollection2, IDisposable
                     ""action"": ""StartRecording"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2ff010d8-bf0a-43e1-a023-d340074473d7"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartRecording"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },

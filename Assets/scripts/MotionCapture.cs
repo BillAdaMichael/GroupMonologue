@@ -35,6 +35,7 @@ public class MotionCapture : MonoBehaviour
 {
     public GameObject headset, leftController, rightController;
     public string folderName = "testFolder";
+    public int maxRecordingCount;
     private int playerNumber;
     private float timePassed;
     private CsvLogger logger;
@@ -47,8 +48,9 @@ public class MotionCapture : MonoBehaviour
     private void Awake()
     {
         inputActions = new GameplayInput();
-        inputActions.Player.StartRecording.performed += HandleStartRecordingButton;
-        inputActions.Player.StartRecording.canceled += HandleStartRecordingButton;
+        inputActions.Player.StartRecording.started += HandleStartRecordingButton;
+        //inputActions.Player.StartRecording.performed += HandleStartRecordingButton;
+        //inputActions.Player.StartRecording.canceled += HandleStartRecordingButton;
         inputActions.Player.Enable();
     }
 
@@ -64,16 +66,17 @@ public class MotionCapture : MonoBehaviour
 
     private void OnDestroy()
     {
-        inputActions.Player.StartRecording.performed -= HandleStartRecordingButton;
-        inputActions.Player.StartRecording.canceled -= HandleStartRecordingButton;
+        inputActions.Player.StartRecording.started += HandleStartRecordingButton;
+        //inputActions.Player.StartRecording.performed -= HandleStartRecordingButton;
+        //inputActions.Player.StartRecording.canceled -= HandleStartRecordingButton;
         inputActions.Player.Disable();
     }
 
     void Start()
     {
         playerNumber = 0;
-        string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
-        logger = openNewFile(saveLoc);
+        //string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
+        //logger = openNewFile(saveLoc);
     }
 
     // wait for a user to press the record button
@@ -82,23 +85,22 @@ public class MotionCapture : MonoBehaviour
 
     void Update()
     {
-        if (recordingButtonDown)
+        if (recordingButtonDown && !recording)
         {
-            //recording = true;
-            //recordingButtonDown = false;
-            Debug.Log("[MotionCapture] Button Has been pressed!");
+            recording = true;
+            reRecordWaiting = false;
+            recordingButtonDown = false;
+            timePassed = 0;
+
+            string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
+            logger = openNewFile(saveLoc);
+            Debug.Log("[MotionCapture] recording started");
         }
 
         if (recording && !reRecordWaiting)
         {
-            
-            // first loop, set time to 0
-            if (!recording)
-                timePassed = 0;
-
-            recording = true;
             recordMotion(timePassed);
-            timePassed = Time.deltaTime;
+            timePassed += Time.deltaTime;
 
             // animation time-out. End it and ask if they want to re-record it.
             if (timePassed > 5f)
@@ -106,37 +108,36 @@ public class MotionCapture : MonoBehaviour
                 reRecordWaiting = true;
                 recording = false;
                 timePassed = 0;
+                Debug.Log($"[MotionCapture] recording ended for {playerNumber}");
+                logger.Close();
             }
         }
         else if (reRecordWaiting)
         {
-            timePassed = Time.deltaTime;
+            timePassed += Time.deltaTime;
+            Debug.Log($"[MotionCapture] waiting to reRecord: {timePassed}");
 
-            // time-out. Start next user check
-            if(timePassed > 10f)
+            if (timePassed > 10f)
             {
                 reRecordWaiting = false;
                 recording = false;
-                logger.Close();
 
                 playerNumber++;
 
-                if(playerNumber < 13) { 
-                    string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
-                    logger = openNewFile(saveLoc);
+                if(playerNumber < maxRecordingCount+1)
+                { 
+                    //string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
+                    //logger = openNewFile(saveLoc);
+                    Debug.Log($"[MotionCapture] time-out. Waiting on player {playerNumber} recording start");
                 }
                 else
                 {
-                    Debug.Log("[MotionCapture] 12 recordings parsed. Move on!");
+                    Debug.Log($"[MotionCapture] {maxRecordingCount} recordings parsed. Move on!");
                     gameObject.SetActive(false);
                 }
             }
             // they want to record again. Go back to start
-            else if (recordingButtonDown)
-            {
-                reRecordWaiting = false;
-                recording = true;
-            }
+            
         }
     }
 
@@ -150,7 +151,7 @@ public class MotionCapture : MonoBehaviour
                         leftController.transform.position.x, leftController.transform.position.y, leftController.transform.position.z,
                         leftController.transform.rotation.x, leftController.transform.rotation.y, leftController.transform.rotation.z, leftController.transform.rotation.w
                     );
-        Debug.Log("[MotionCapture] We are recording right now!");
+        Debug.Log($"[MotionCapture] user {playerNumber} recording time: {timeSinceActive}");
     }
 
     private CsvLogger openNewFile(string _saveLoc)
