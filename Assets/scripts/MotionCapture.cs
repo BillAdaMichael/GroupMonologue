@@ -44,7 +44,10 @@ public class MotionCapture : MonoBehaviour
     private bool recording = false, reRecordWaiting = false, recordingButtonDown = false;
     private NewInputs inputActions;
 
-
+    public AudioClip snd_RecordingComplete; // Ding
+    public AudioClip snd_RecordingStarted; // Beepebeep
+    public AudioClip snd_RecordingConfirmed; // Chacing
+    public AudioSource src;
     public event Action recordingStarted;
     public event Action recordingEnded;
     public event Action reRecordTimeout;
@@ -104,13 +107,17 @@ public class MotionCapture : MonoBehaviour
             string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
             logger = openNewFile(saveLoc);
             Debug.Log("[MotionCapture] recording started");
+            
+            src.clip = snd_RecordingStarted;
+            src.Stop();
+            src.Play();
 
             recordingStarted?.Invoke();
         }
 
         if (recording && !reRecordWaiting)
         {
-            recordMotion(timePassed, playerModelID, modelTextureY);
+            recordMotion(timePassed, playerNumber % 5, modelTextureY);
             timePassed += Time.deltaTime;
 
             // animation time-out. End it and ask if they want to re-record it.
@@ -120,6 +127,9 @@ public class MotionCapture : MonoBehaviour
                 recording = false;
                 timePassed = 0;
                 Debug.Log($"[MotionCapture] recording ended for {playerNumber}");
+                src.clip = snd_RecordingConfirmed;
+                src.Stop();
+                src.Play();
                 recordingEnded?.Invoke();
                 logger.Close();
                 motionReplay.enabled = true;
@@ -149,6 +159,9 @@ public class MotionCapture : MonoBehaviour
                     Debug.Log($"[MotionCapture] {maxRecordingCount} recordings parsed. Move on!");
                     gameObject.SetActive(false);
                 }
+                src.clip = snd_RecordingComplete;
+                src.Stop();
+                src.Play();
                 reRecordTimeout?.Invoke();
             }
             // they want to record again. Go back to start
