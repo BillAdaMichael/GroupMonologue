@@ -117,7 +117,7 @@ public class MotionCapture : MonoBehaviour
 
         if (recording && !reRecordWaiting)
         {
-            recordMotion(timePassed, playerNumber % 5, modelTextureY);
+            recordMotion(timePassed, 0, modelTextureY);
             timePassed += Time.deltaTime;
 
             // animation time-out. End it and ask if they want to re-record it.
