@@ -348,6 +348,7 @@ GameObject:
   - component: {fileID: 4594196411209255307}
   - component: {fileID: 744163978111802945}
   - component: {fileID: 3487035916110953446}
+  - component: {fileID: 6746978256012437641}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -406,7 +407,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 3bbc7057ed78b284b8b3362cec23adb4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -451,3 +452,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6746978256012437641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8681615501733862395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5102fc07026074b498c67efa0498e353, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  motionValues: []
+  headset: {fileID: 6808323143317836939}
+  LController: {fileID: 7354006345207628986}
+  RController: {fileID: 2444899240598363350}

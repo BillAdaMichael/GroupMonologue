@@ -35,7 +35,9 @@ public class MotionCapture : MonoBehaviour
 {
     public GameObject headset, leftController, rightController;
     public string folderName = "testFolder";
-    public int maxRecordingCount;
+    public int maxRecordingCount, playerModelID;
+    public float modelTextureY;
+    public MotionReplay motionReplay;
     private int playerNumber;
     private float timePassed;
     private CsvLogger logger;
@@ -43,7 +45,7 @@ public class MotionCapture : MonoBehaviour
     private GameplayInput inputActions;
 
 
-    //public event Action OnButtonPressed;
+    public event Action recordingStarted;
 
     private void Awake()
     {
@@ -99,7 +101,7 @@ public class MotionCapture : MonoBehaviour
 
         if (recording && !reRecordWaiting)
         {
-            recordMotion(timePassed);
+            recordMotion(timePassed, playerModelID, modelTextureY);
             timePassed += Time.deltaTime;
 
             // animation time-out. End it and ask if they want to re-record it.
@@ -110,12 +112,14 @@ public class MotionCapture : MonoBehaviour
                 timePassed = 0;
                 Debug.Log($"[MotionCapture] recording ended for {playerNumber}");
                 logger.Close();
+                motionReplay.enabled = true;
             }
         }
         else if (reRecordWaiting)
         {
             timePassed += Time.deltaTime;
             Debug.Log($"[MotionCapture] waiting to reRecord: {timePassed}");
+            motionReplay.enabled = false;
 
             if (timePassed > 10f)
             {
@@ -124,7 +128,7 @@ public class MotionCapture : MonoBehaviour
 
                 playerNumber++;
 
-                if(playerNumber < maxRecordingCount+1)
+                if(playerNumber < maxRecordingCount)
                 { 
                     //string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
                     //logger = openNewFile(saveLoc);
@@ -141,7 +145,7 @@ public class MotionCapture : MonoBehaviour
         }
     }
 
-    private void recordMotion(float timeSinceActive)
+    private void recordMotion(float timeSinceActive, int modelID, float texY)
     {
         logger.AddRow(  timeSinceActive,
                         headset.transform.position.x, headset.transform.position.y, headset.transform.position.z,
@@ -149,9 +153,10 @@ public class MotionCapture : MonoBehaviour
                         rightController.transform.position.x, rightController.transform.position.y, rightController.transform.position.z,
                         rightController.transform.rotation.x, rightController.transform.rotation.y, rightController.transform.rotation.z, rightController.transform.rotation.w,
                         leftController.transform.position.x, leftController.transform.position.y, leftController.transform.position.z,
-                        leftController.transform.rotation.x, leftController.transform.rotation.y, leftController.transform.rotation.z, leftController.transform.rotation.w
+                        leftController.transform.rotation.x, leftController.transform.rotation.y, leftController.transform.rotation.z, leftController.transform.rotation.w,
+                        modelID, texY
                     );
-        Debug.Log($"[MotionCapture] user {playerNumber} recording time: {timeSinceActive}");
+        //Debug.Log($"[MotionCapture] user {playerNumber} recording time: {timeSinceActive}");
     }
 
     private CsvLogger openNewFile(string _saveLoc)
@@ -168,7 +173,8 @@ public class MotionCapture : MonoBehaviour
             "RControllerPos x", "RControllerPos y", "RControllerPos z",
             "RControllerRot (Quat) x", "RControllerRot (Quat) y", "RControllerRot (Quat) z", "RControllerRot (Quat) w",
             "LControllerPos x", "LControllerPos y", "LControllerPos z",
-            "LControllerRot (Quat) x", "LControllerRot (Quat) y", "LControllerRot (Quat) z", "LControllerRot (Quat) w");
+            "LControllerRot (Quat) x", "LControllerRot (Quat) y", "LControllerRot (Quat) z", "LControllerRot (Quat) w",
+            "modelID", "texY");
     }
 
     void OnApplicationQuit()
