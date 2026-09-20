@@ -46,6 +46,13 @@ public class MotionCapture : MonoBehaviour
 
 
     public event Action recordingStarted;
+    public event Action recordingEnded;
+    public event Action reRecordTimeout;
+    // subscriber needs to do the following:
+    // MotionCapture mc;
+    // mc. recordingStarted += foo();
+    // AND ALSO!
+    // onDestory() { mc.recordingStarted -= foo(); } to avoid memory leaks
 
     private void Awake()
     {
@@ -68,7 +75,7 @@ public class MotionCapture : MonoBehaviour
 
     private void OnDestroy()
     {
-        inputActions.Player.StartRecording.started += HandleStartRecordingButton;
+        inputActions.Player.StartRecording.started -= HandleStartRecordingButton;
         //inputActions.Player.StartRecording.performed -= HandleStartRecordingButton;
         //inputActions.Player.StartRecording.canceled -= HandleStartRecordingButton;
         inputActions.Player.Disable();
@@ -97,6 +104,8 @@ public class MotionCapture : MonoBehaviour
             string saveLoc = folderName + "/" + playerNumber.ToString() + ".csv";
             logger = openNewFile(saveLoc);
             Debug.Log("[MotionCapture] recording started");
+
+            recordingStarted?.Invoke();
         }
 
         if (recording && !reRecordWaiting)
@@ -111,6 +120,7 @@ public class MotionCapture : MonoBehaviour
                 recording = false;
                 timePassed = 0;
                 Debug.Log($"[MotionCapture] recording ended for {playerNumber}");
+                recordingEnded?.Invoke();
                 logger.Close();
                 motionReplay.enabled = true;
             }
@@ -139,6 +149,7 @@ public class MotionCapture : MonoBehaviour
                     Debug.Log($"[MotionCapture] {maxRecordingCount} recordings parsed. Move on!");
                     gameObject.SetActive(false);
                 }
+                reRecordTimeout?.Invoke();
             }
             // they want to record again. Go back to start
             
@@ -179,6 +190,9 @@ public class MotionCapture : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        logger.Close();
+        if (logger != null)
+        {
+            logger.Close();
+        }
     }
 }
