@@ -78,6 +78,11 @@ public class motionPlayer : MonoBehaviour
     {
         string[] closest = new string[2];
 
+        if(rows.Length <= 2)
+        {
+            Debug.LogWarning($"[MotionPlayer] Rows too short: {rows.Length}");
+        }
+
         if (rows == null || rows.Length == 0)
             return closest;
 
@@ -132,6 +137,7 @@ public class motionPlayer : MonoBehaviour
 
         closest[0] = rows[Mathf.Clamp(prevIndex, firstDataIndex, rows.Length - 1)];
         closest[1] = rows[Mathf.Clamp(nextIndex, firstDataIndex, rows.Length - 1)];
+        
         return closest;
     }
 }

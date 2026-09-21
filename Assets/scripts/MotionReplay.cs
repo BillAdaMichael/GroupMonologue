@@ -78,9 +78,13 @@ public class MotionReplay : MonoBehaviour
     void updateGameObject(string[] contents)
     {
         string[] values = contents[1].Split(',');
-        GameObject oldPlayerContainer = Instantiate(playerPrefabs[int.Parse(values[22])]);
-        oldPlayerContainer.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0, float.Parse(values[23]));
-        oldPlayerContainer.GetComponent<motionPlayer>().motionValues = contents;
-        pastPlayers.Add(oldPlayerContainer);
+        GameObject oldPlayerContainer = Instantiate(playerPrefabs[int.Parse(values[22])]); // spawn a player model matching the one in the save file
+        motionPlayer mp = oldPlayerContainer.GetComponent<motionPlayer>();
+        Renderer r = mp.headset.GetComponent<Renderer>();
+        Material mat = new Material(r.material);
+        r.material = mat;
+        mat.mainTextureOffset = new Vector2(0, float.Parse(values[23]));
+        oldPlayerContainer.GetComponent<motionPlayer>().motionValues = contents; // pass the csv values to get replayed
+        pastPlayers.Add(oldPlayerContainer); // save in a list to delete later
     }
 }

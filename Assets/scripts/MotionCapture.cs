@@ -59,6 +59,11 @@ public class MotionCapture : MonoBehaviour
 
     private void Awake()
     {
+        if (Directory.Exists(folderName))
+        {
+            Directory.Delete(folderName, true);
+        }
+
         inputActions = new NewInputs();
         inputActions.Player.StartRecording.started += HandleStartRecordingButton;
         //inputActions.Player.StartRecording.performed += HandleStartRecordingButton;
@@ -117,7 +122,7 @@ public class MotionCapture : MonoBehaviour
 
         if (recording && !reRecordWaiting)
         {
-            recordMotion(timePassed, 0, modelTextureY);
+            recordMotion(timePassed, playerNumber % motionReplay.playerPrefabs.Length, UnityEngine.Random.Range(0, 16) / 16f);
             timePassed += Time.deltaTime;
 
             // animation time-out. End it and ask if they want to re-record it.

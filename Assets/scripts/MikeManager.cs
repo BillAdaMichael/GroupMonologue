@@ -17,6 +17,8 @@ public class MikeManager : MonoBehaviour
     [SerializeField] Transform DesktopCam;
     [SerializeField] Transform Stage_Zero;
     [SerializeField] Transform Stage_Orbit;
+    [SerializeField] Transform Stage_POV;
+    [SerializeField] Transform Stage_ReviewClip;
 
     [SerializeField] AudioClip snd_IntroBGM;
     [SerializeField] AudioClip snd_OutroBGM;
